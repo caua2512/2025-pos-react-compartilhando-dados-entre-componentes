@@ -3,8 +3,9 @@
 import type React from "react";
 
 import { useEffect, useState } from "react";
-import dados, { TarefaInterface } from "@/data";
+import dados, { TarefaInterface, carregar } from "@/data";
 import Cabecalho from "@/componentes/Cabecalho";
+import ModalTarefa from "@/componentes/TarefaModal";
 
 interface TarefaProps {
 	titulo: string;
@@ -55,13 +56,53 @@ const Tarefas: React.FC<TareafasProps> = ({ dados }) => {
 	);
 };
 
-const Home = () => {
-	const tarefas: TarefaInterface[] = dados;
+const Home: React.FC = () => {
+	const [tarefas, setTarefas] = useState<TarefaInterface[]>([]);
+	const [ModalAberto, setModalAberto] = useState<boolean>(false);
+	const [Erro, setErro] = useState<string | null>(null);
+
+	useEffect(() => {
+		carregar()
+		 .then((dados) => setTarefas(dados))
+		 .catch((Erro) => setErro(Erro.message));
+	}, []);
+
+	const adicionarTarefa = (novaTarefa: TarefaInterface) => {
+		setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
+	};
+
+	const abrirModal = () => setModalAberto(true);
+	const fecharModal = () => setModalAberto(false);
+
+	if (Erro) {
+		return <div>{Erro}</div>;
+	}
 
 	return (
 		<div className="container mx-auto p-4">
 			<Cabecalho />
-			<Tarefas dados={tarefas} />
+			<button onClick={abrirModal}>Adicionar Nova Tarefa</button>
+			<ul>
+				{tarefas.map((Tarefa) => (
+					<li key={Tarefa.id}>
+						<input 
+							type="checkbox"
+							checked={Tarefa.completed}
+							onChange={() => 
+								setTarefas((tarefasAtuais) =>
+									tarefasAtuais.map((t) =>
+										t.id === Tarefa.id ? {...t, completed: !t.completed } : t
+									)
+								)
+							}
+						/>
+						{Tarefa.title}
+					</li>
+				))}
+			</ul>
+			{ModalAberto && (
+					<ModalTarefa adicionarTarefa={adicionarTarefa} fecharModal={fecharModal} />
+			)}		
 		</div>
 	);
 };
