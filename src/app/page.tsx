@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useEffect, useState } from "react";
-import dados, { TarefaInterface, carregar } from "@/data";
+import dados, { TarefaInterface } from "@/data";
 import Cabecalho from "@/componentes/Cabecalho";
 import ModalTarefa from "@/componentes/TarefaModal";
 
@@ -56,53 +56,36 @@ const Tarefas: React.FC<TareafasProps> = ({ dados }) => {
 	);
 };
 
-const Home: React.FC = () => {
-	const [tarefas, setTarefas] = useState<TarefaInterface[]>([]);
-	const [ModalAberto, setModalAberto] = useState<boolean>(false);
-	const [Erro, setErro] = useState<string | null>(null);
+const Home = () => {
+	const [tarefas, setTarefas] = useState<TarefaInterface[]>(dados);
+	const [mostrarModal, setMostrarModal] = useState(false);
 
-	useEffect(() => {
-		carregar()
-		 .then((dados) => setTarefas(dados))
-		 .catch((Erro) => setErro(Erro.message));
-	}, []);
-
-	const adicionarTarefa = (novaTarefa: TarefaInterface) => {
-		setTarefas((tarefasAtuais) => [...tarefasAtuais, novaTarefa]);
+	const adicionarTarefa = (titulo: string) => {
+		const novaTarefa: TarefaInterface = {
+			id: tarefas.length + 1,
+			title: titulo,
+			completed: false,
+		};
+		setTarefas((prev) => [...prev, novaTarefa]);
+		setMostrarModal(false);
 	};
-
-	const abrirModal = () => setModalAberto(true);
-	const fecharModal = () => setModalAberto(false);
-
-	if (Erro) {
-		return <div>{Erro}</div>;
-	}
 
 	return (
 		<div className="container mx-auto p-4">
 			<Cabecalho />
-			<button onClick={abrirModal}>Adicionar Nova Tarefa</button>
-			<ul>
-				{tarefas.map((Tarefa) => (
-					<li key={Tarefa.id}>
-						<input 
-							type="checkbox"
-							checked={Tarefa.completed}
-							onChange={() => 
-								setTarefas((tarefasAtuais) =>
-									tarefasAtuais.map((t) =>
-										t.id === Tarefa.id ? {...t, completed: !t.completed } : t
-									)
-								)
-							}
-						/>
-						{Tarefa.title}
-					</li>
-				))}
-			</ul>
-			{ModalAberto && (
-					<ModalTarefa adicionarTarefa={adicionarTarefa} fecharModal={fecharModal} />
-			)}		
+			<button
+				className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+				onClick={() => setMostrarModal(true)}
+			>
+				Nova Tarefa
+			</button>
+			{mostrarModal && (
+				<ModalTarefa
+					aoadicionar={adicionarTarefa}
+					aoFechar={() => setMostrarModal(false)}
+				/>
+			)}
+			<Tarefas dados={tarefas} />
 		</div>
 	);
 };

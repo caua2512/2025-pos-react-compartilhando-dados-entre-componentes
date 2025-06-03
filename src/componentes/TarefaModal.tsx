@@ -1,36 +1,44 @@
 import { useState } from "react";
-import { TarefaInterface } from "@/data";
 
 interface ModalTarefaProps {
-    adicionarTarefa: (novaTarefa: TarefaInterface) => void;
-    fecharModal: () => void;
+    aoadicionar: (titulo: string) => void;
+    aoFechar: () => void;
 }
 
-const ModalTarefa: React.FC<ModalTarefaProps> = ({ adicionarTarefa, fecharModal }) => {
-    const  [novaTarefa, setNovaTarefa] = useState<string>("");
+const ModalTarefa: React.FC<ModalTarefaProps> = ({ aoadicionar, aoFechar }) => {
+    const [titulo, setTitulo] = useState("");
 
-    const Adicionar = () => {
-        if (novaTarefa.trim()) {
-            const novaTarefaObj: TarefaInterface = {
-                id: Date.now(),
-                title: novaTarefa,
-                completed: false,
-            };
-            adicionarTarefa(novaTarefaObj);
-            fecharModal();
-        }
+    const lidarComEnvio = () => {
+        if (titulo.trim() === "") return;
+        aoadicionar(titulo);
+        setTitulo("");
     };
-
     return (
-        <div className="modal">
-            <input
-                type="text"
-                value={novaTarefa}
-                onChange={(e) => setNovaTarefa(e.target.value)}
-                placeholder="Digite uma nova tarefa"
-            />
-            <button onClick={Adicionar}>Adicionar Tarefa</button>
-            <button onClick={fecharModal}>Fechar</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-4">Nova Tarefa</h2>
+                <input
+                    type="text"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    className="w=full border border-gray-300 rounded p-2 mb-4"
+                    placeholder="Digite o título da tarefa"
+                />
+                <div className="flex justify-end gap-2">
+                    <button 
+                        className=""
+                        onClick={aoFechar}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="bg-blue-600 text-white px-4 py-2 rounded"
+                        onClick={lidarComEnvio}
+                    >
+                        Adicionar
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
